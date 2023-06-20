@@ -21,6 +21,47 @@ namespace TodoProject.Tests.Services
         }
 
         [Test]
+        public async Task AddTodo_ValidInput_ReturnsUpdatedTodos()
+        {
+            // arrange
+            var newTodo = new AddTodoDto
+            {
+                name = "John Doe",
+                todoTitle = "Task 3",
+                todoContext = "Do something new",
+                createdAt = 456789
+            };
+
+            var todos = new List<Todo>
+            {
+                new Todo { id = 1, name = "John Doe", todoTitle = "Task 1", todoContext = "Do something", createdAt = 123456 },
+                new Todo { id = 2, name = "Jane Smith", todoTitle = "Task 2", todoContext = "Do something else", createdAt = 789012 }
+            };
+
+            // mock the mapper
+            var mockMapper = new Mock<IMapper>();
+            mockMapper.Setup(mapper => mapper.Map<Todo>(newTodo)).Returns(new Todo
+            {
+                id = 3,
+                name = newTodo.name,
+                todoTitle = newTodo.todoTitle,
+                todoContext = newTodo.todoContext,
+                createdAt = newTodo.createdAt
+            });
+
+            var todoService = new TodoService(mockMapper.Object);
+
+            // act
+            var serviceResponse = await todoService.AddTodo(newTodo);
+
+            // assert
+            Assert.IsNotNull(serviceResponse);
+            Assert.IsTrue(serviceResponse.Success);
+            Assert.IsNotNull(serviceResponse.Data);
+            Assert.AreEqual(todos.Count + 1, serviceResponse.Data.Count);
+        }
+
+        [Test]
         public async Task UpdateTodo_ValidTodo_ReturnsSuccessResponseWithData()
         {
             // arrange
